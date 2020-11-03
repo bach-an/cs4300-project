@@ -75,6 +75,9 @@ const render = () => {
  const zFar = 2000;
 
  gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
+ shapes.forEach(shape => {
+    renderPlatform(shape)
+  })
 }
 
 let fieldOfViewRadians = m4.degToRad(60)
@@ -86,4 +89,25 @@ const computeModelViewMatrix = (canvas, shape, aspect, zNear, zFar) => {
   M = m4.zRotate(M, m4.degToRad(shape.rotation.z))
   M = m4.scale(M, shape.scale.x, shape.scale.y, shape.scale.z)
   return M
+}
+
+const renderPlatform = (platform) => {
+  const geometry = [
+     0,  0,  0,    0, 30,  0,   30,  0,  0,
+     0, 30,  0,   30, 30,  0,   30,  0,  0,
+     0,  0, 30,   30,  0, 30,    0, 30, 30,
+     0, 30, 30,   30,  0, 30,   30, 30, 30,
+     0, 30,  0,    0, 30, 30,   30, 30, 30,
+     0, 30,  0,   30, 30, 30,   30, 30,  0,
+     0,  0,  0,   30,  0,  0,   30,  0, 30,
+     0,  0,  0,   30,  0, 30,    0,  0, 30,
+     0,  0,  0,    0,  0, 30,    0, 30, 30,
+     0,  0,  0,    0, 30, 30,    0, 30,  0,
+    30,  0, 30,   30,  0,  0,   30, 30, 30,
+    30, 30, 30,   30,  0,  0,   30, 30,  0
+  ]
+  const float32Array = new Float32Array(geometry)
+  gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
+  var primitiveType = gl.TRIANGLES;
+  gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
 }

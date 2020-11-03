@@ -11,10 +11,11 @@
              crossorigin="anonymous"></script>
      <script src="m4.js" type="application/javascript"></script>
      <script src="webgl-utils.js" type="application/javascript"></script>
+     <script src="shapes.js" type="application/javascript"></script>
      <script src="platform.js" type="application/javascript"></script>
   </head>
 
-  <body>
+  <body onload="init();render();">
     <div id="canvasDiv" style="position:absolute; top:25px; left:25px;">
       <canvas id="canvas" width="700px" height="500px"></canvas>
     </div>
