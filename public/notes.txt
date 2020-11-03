@@ -1,0 +1,7 @@
+Need to represent a player object
+  - has health
+  - score?
+ 
+Need to represent world
+  - terrain, randomly generated
+  - hazards
