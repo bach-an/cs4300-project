@@ -5,3 +5,6 @@ Need to represent a player object
 Need to represent world
   - terrain, randomly generated
   - hazards
+
+How the heck is jumping going to work
+

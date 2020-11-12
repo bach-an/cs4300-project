@@ -14,7 +14,6 @@ const webglUtils = {
  },
 
  createProgramFromScripts: (gl) => {
-
    // Create GLSL shaders, upload the GLSL source, compile the shaders
    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
    gl.shaderSource(vertexShader, vertexShaderSource);
@@ -30,7 +29,6 @@ const webglUtils = {
    gl.attachShader(program, vertexShader);
    gl.attachShader(program, fragmentShader);
    gl.linkProgram(program);
-
    return program
  },
  componentToHex: (c) => {
