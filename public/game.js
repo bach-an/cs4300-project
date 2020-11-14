@@ -10,7 +10,7 @@ scene.add(spotLight);
 scene.add(light);
 let cw = canvas.width
 let ch = canvas.height
-
+var DONE = false;
 
 // first arg is FOV in degrees
 // second arg is aspect ratio
@@ -30,34 +30,33 @@ camera.position.x = 0;
 camera.position.y = 1; // how "tall" player character is
 
 
-/*
-const floorGeometry = new THREE.BoxBufferGeometry(100, 0.5, 100);
-const floorMaterial = new THREE.MeshBasicMaterial( { map:floorTexture } );
-const floor = new THREE.Mesh( floorGeometry, floorMaterial );
-floor.position.set(0, -1, 0);
-group.add(floor);
-
-floor.name = 'f1'
-*/
 // default position is (0,0,0)
 const geometry = new THREE.BoxBufferGeometry(1,1,10);
 const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
 const cube = new THREE.Mesh( geometry, material );
 const cube2 = new THREE.Mesh( geometry, material );
+
+const cylinderGeometry = new THREE.CylinderGeometry(5,5,5,32);
+const cylinderMaterial = new THREE.MeshLambertMaterial( { map:cylinderTexture} );
+const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+
 cube2.position.set(0,0,-11);
+cylinder.position.set(0, -2, -21);
+cylinder.name = 'cylinder';
 cube.name = 'c1';
 cube.name = 'c2';
 
 
 group.add(cube);
 group.add(cube2);
+group.add(cylinder);
 scene.add(group);
 
 
 document.addEventListener('keypress', onKeyPress);
 var pause = false
 // param to determine how fast the camera is moving in the z dir
-const speed = 0.02
+const speed = 0.03
 function onKeyPress(e) {
   switch(e.code) {
     case 'KeyW':
@@ -105,8 +104,15 @@ function onTop() {
   raycaster.set(camera.position, new THREE.Vector3(0, -1, 0));
   var intersects = raycaster.intersectObjects(group.children);
   if(intersects.length > 0) {
+    
     top = true;
   }
+  intersects.forEach(element => {
+    //console.log(element);
+    if(element.object.name == 'cylinder') {
+      DONE = true;
+    }
+  })
   return top;
 }
 
@@ -126,6 +132,10 @@ const animate = function () {
 	renderer.render( scene, camera );
   if(!onTop() || camera.position.y > 1) {
     camera.position.y += gravity;
+  }
+  if (DONE) {
+    alert('demo done: you win!');
+    location.reload();
   }
   /* UNCOMMENT TO SET FAIL STATE
   if (camera.position.y <-3) {
