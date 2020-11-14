@@ -1,1 +1,1 @@
-const gravity = -0.03
+const gravity = -0.05

@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/bach-an/cs4300-project/issues"
   },
-  "homepage": "https://github.com/bach-an/cs4300-project#readme"
+  "homepage": "https://github.com/bach-an/cs4300-project#readme",
+  "dependencies": {
+    "express": "latest"
+
+  } 
 }
