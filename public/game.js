@@ -1,10 +1,13 @@
 canvas = document.getElementById('canvas')
-//const scene = new THREE.Scene();
-
-Physijs.scripts.worker = 'utils/physijs/physijs_worker.js';
-Physijs.scripts.ammo = 'ammo.js';
-const scene = new Physijs.Scene();
-scene.setGravity(new THREE.Vector3(0, -10, 0));
+const scene = new THREE.Scene();
+const spotLight = new THREE.SpotLight(0x1000eb);
+const light = new THREE.AmbientLight();
+spotLight.position.set(0,2.5,-10);
+spotLight.shadow.mapSize.width = 5;
+spotLight.shadow.mapSize.height = 5;
+spotLight.castShadow = true;
+scene.add(spotLight);
+scene.add(light);
 let cw = canvas.width
 let ch = canvas.height
 
@@ -38,7 +41,7 @@ floor.name = 'f1'
 */
 // default position is (0,0,0)
 const geometry = new THREE.BoxBufferGeometry(1,1,10);
-const material = new THREE.MeshBasicMaterial( { map:cobblestoneTexture} );
+const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
 const cube = new THREE.Mesh( geometry, material );
 const cube2 = new THREE.Mesh( geometry, material );
 cube2.position.set(0,0,-11);
@@ -64,13 +67,17 @@ function onKeyPress(e) {
       camera.position.z += speed;
       break;
     case 'Space':
-
-      camera.position.z -= 0.75
+      // still doesn't look or feel right
+      // TODO: tweak
+      camera.position.z -= 1
       camera.position.y += 20 * -gravity;
 
       break;
     case 'KeyP':
       pause = !pause;
+      break;
+    case 'KeyR':
+      location.reload();
       break;
     default:
       console.log(e.code);
