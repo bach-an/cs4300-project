@@ -69,34 +69,31 @@ const PressedKeys = {
 
 // initializes the event listeners
 const init = () => {
-  document.addEventListener('keypress', onKeyPress);
-  // document.addEventListener('keydown', onKeyDown);
-  // document.addEventListener('keyup', onKeyUp);
+  document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('keyup', onKeyUp);
 
   animate();
 }
 
-
-// param to determine how fast the camera is moving in the z dir
-function onKeyPress(e) {
+// activates a down press
+function onKeyDown(e) {
   switch(e.code) {
-    case 'KeyW':
-      PlayerObject.camera.position.z -= physics.speed;
-      break;
-    case 'KeyS':
-      PlayerObject.camera.position.z += physics.speed;
-      break;
-    case 'Space':
-      if (onTop) {
-        PlayerObject.y_velocity = physics.jumpVelocity;
-      }
-      break;
     case 'KeyR':
       location.reload();
       break;
+    case 'Space':
+      if (onTop()) {
+        PlayerObject.y_velocity = physics.jumpVelocity;
+      }
     default:
-      console.log(e.code);
-    }
+      PressedKeys[e.code] = true;
+  }
+}
+
+// activates a up press
+function onKeyUp(e) {
+  PressedKeys[e.code] = false;
+  console.log(PressedKeys)
 }
 
 
@@ -110,7 +107,29 @@ function updateGame() {
   } else {
     PlayerObject.y_velocity -= physics.gravity;
   }
+  if (onTop()) {
+    if (PressedKeys['KeyW']) {
+      PlayerObject.z_velocity = Math.min(physics.speedCap,
+        PlayerObject.z_velocity + physics.moveAccel)
+    }
+    else if (PressedKeys['KeyS']) {
+      PlayerObject.z_velocity = Math.max(-physics.speedCap,
+        PlayerObject.z_velocity - physics.moveAccel)
+    } else {
+      PlayerObject.z_velocity *= 1.0 - physics.friction;
+    }
+  } else {
+    
+  }
+  
+
+  PlayerObject.camera.position.z += PlayerObject.z_velocity;
   PlayerObject.camera.position.y += PlayerObject.y_velocity;
+
+  if (DONE) {
+    alert('demo done: you win!');
+    location.reload();
+  }
 }
 
 
@@ -127,12 +146,18 @@ function updateGame() {
 
 
 // determine if the camera is on top of any of the current objects
-//https://steemit.com/utopian-io/@clayjohn/learning-3d-graphics-with-three-js-or-how-to-use-a-raycaster
+// https://steemit.com/utopian-io/@clayjohn/learning-3d-graphics-with-three-js-or-how-to-use-a-raycaster
 // used raycasters to figure this out
 function onTop() {
   var top = false;
   var raycaster = new THREE.Raycaster();
-  raycaster.set(PlayerObject.camera.position, new THREE.Vector3(0, -1, 0));
+
+  camera_copy = {
+    z: PlayerObject.camera.position.z,
+    x: PlayerObject.camera.position.x,
+    y: PlayerObject.camera.position.y - 1.5,
+  }
+  raycaster.set(camera_copy, new THREE.Vector3(0, 1, 0));
   var intersects = raycaster.intersectObjects(group.children);
   if(intersects.length > 0) {
     
@@ -156,14 +181,7 @@ const animate = function () {
 	requestAnimationFrame( animate );
   renderer.render( scene, PlayerObject.camera );
   updateGame();
-
-  //if(!onTop() || PlayerObject.camera.position.y > 1) {
-  //  PlayerObject.camera.position.y += physics.gravity;
-  //}
-  if (DONE) {
-    alert('demo done: you win!');
-    location.reload();
-  }
+  
   /* UNCOMMENT TO SET FAIL STATE
   if (PlayerObject.camera.position.y <-3) {
     alert('you lose')
