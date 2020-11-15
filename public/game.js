@@ -54,6 +54,7 @@ scene.add(group);
 const PlayerObject = {
   camera: camera,
   z_velocity: 0,
+  y_velocity: 0,
 }
 
 // tracks all pressed buttons
@@ -69,31 +70,26 @@ const PressedKeys = {
 // initializes the event listeners
 const init = () => {
   document.addEventListener('keypress', onKeyPress);
+  // document.addEventListener('keydown', onKeyDown);
+  // document.addEventListener('keyup', onKeyUp);
 
   animate();
 }
 
 
-var pause = false
 // param to determine how fast the camera is moving in the z dir
-const speed = 0.03
 function onKeyPress(e) {
   switch(e.code) {
     case 'KeyW':
-      PlayerObject.camera.position.z -= speed;
+      PlayerObject.camera.position.z -= physics.speed;
       break;
     case 'KeyS':
-      PlayerObject.camera.position.z += speed;
+      PlayerObject.camera.position.z += physics.speed;
       break;
     case 'Space':
-      // still doesn't look or feel right
-      // TODO: tweak
       if (onTop) {
-        PlayerObject.camera.position.y -= 50 * gravity;
+        PlayerObject.y_velocity = physics.jumpVelocity;
       }
-      break;
-    case 'KeyP':
-      pause = !pause;
       break;
     case 'KeyR':
       location.reload();
@@ -102,6 +98,21 @@ function onKeyPress(e) {
       console.log(e.code);
     }
 }
+
+
+// updates the world every tick (60 per second)
+function updateGame() {
+  if (onTop()) {
+    console.log('WHYYYY')
+  }
+  if (onTop() && PlayerObject.y_velocity <= 0) {
+    PlayerObject.y_velocity = 0;
+  } else {
+    PlayerObject.y_velocity -= physics.gravity;
+  }
+  PlayerObject.camera.position.y += PlayerObject.y_velocity;
+}
+
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 (function() {
@@ -142,17 +153,13 @@ function onTop() {
 renderer.render(scene, PlayerObject.camera);
 let i = 0;
 const animate = function () {
-  if(PlayerObject.camera.position.z >= 2) {
-    PlayerObject.camera.position.z = 2;
-  }
-  //if(pause) {
-  //  PlayerObject.camera.position.z -= speed;
-  //}
 	requestAnimationFrame( animate );
-	renderer.render( scene, PlayerObject.camera );
-  if(!onTop() || PlayerObject.camera.position.y > 1) {
-    PlayerObject.camera.position.y += gravity;
-  }
+  renderer.render( scene, PlayerObject.camera );
+  updateGame();
+
+  //if(!onTop() || PlayerObject.camera.position.y > 1) {
+  //  PlayerObject.camera.position.y += physics.gravity;
+  //}
   if (DONE) {
     alert('demo done: you win!');
     location.reload();
