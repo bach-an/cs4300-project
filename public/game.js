@@ -25,29 +25,27 @@ renderer.setSize(canvas.width, canvas.height);
 document.body.appendChild(renderer.domElement);
 
 const group = new THREE.Group(); // add shapes here to render all conveniently
-camera.position.z = 2;
+camera.position.z = -2;
 camera.position.x = 0;
 camera.position.y = 1; // how "tall" player character is
 
 // default position is (0,0,0)
-const geometry = new THREE.BoxBufferGeometry(1,1,10);
+const geometry = new THREE.BoxBufferGeometry(1,1,1);
 const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
-const cube = new THREE.Mesh( geometry, material );
-const cube2 = new THREE.Mesh( geometry, material );
 
-const cylinderGeometry = new THREE.CylinderGeometry(5,5,5,32);
-const cylinderMaterial = new THREE.MeshLambertMaterial( { map:cylinderTexture} );
-const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+let blockTick = 0;
+const blockList = [];
+let createBlockList = [];
 
-cube2.position.set(0,0,-11);
-cylinder.position.set(0, -2, -21);
-cylinder.name = 'cylinder';
-cube.name = 'c1';
-cube.name = 'c2';
+// creating the initial array of objects
+for (let i = 0; i < settings.startingBlocks; i++) {
+  let newCube = new THREE.Mesh(geometry, material);
+  newCube.position.set(0, 0, -i);
+  newCube.name = -i;
+  group.add(newCube);
+  blockList.push(newCube);
+}
 
-group.add(cube);
-group.add(cube2);
-group.add(cylinder);
 scene.add(group);
 
 // records the players gamestate
@@ -65,7 +63,6 @@ const PressedKeys = {
   'KeyD': false,
   'Space': false,
 }
-
 
 // initializes the event listeners
 const init = () => {
@@ -93,41 +90,90 @@ function onKeyDown(e) {
 // activates a up press
 function onKeyUp(e) {
   PressedKeys[e.code] = false;
-  console.log(PressedKeys)
+}
+
+// generate/update blocks
+function generateBlock() {
+  if (blockTick % settings.blockGenTickRate == 0) {
+    let blockZ = blockList[blockList.length - 1].position.z;
+    if (PlayerObject.camera.position.z - blockZ < settings.generateDist) {
+      let trueBlock = Math.random() < settings.blockChance;
+      createBlockList.push({
+        index: blockList.length,
+        exists: trueBlock,
+        height: 0, // for now
+      })
+      let newCube = new THREE.Mesh(geometry, material);
+      newCube.position.set(0, -10.0, -blockList.length);
+      newCube.name = -blockList.length;
+      if (trueBlock) {
+        group.add(newCube);
+      }
+      blockList.push(newCube);
+    }
+  }
+  // animate the moving blocks upwards
+  createBlockList.forEach(function(block) {
+    if (block.exists) {
+      cube = blockList[block.index];
+      cube.position.y += settings.blockSpeed * (block.height - cube.position.y);
+    }
+  });
+  // removes finished moving blocks
+  createBlockList = createBlockList.filter(function(block) {
+    if (Math.abs(block.height - blockList[block.index].position.y) < settings.blockMarginError) {
+      blockList[block.index].position.y = block.height;
+      return false;
+    }
+    return true;
+  });
+  blockTick++;
 }
 
 
 // updates the world every tick (60 per second)
 function updateGame() {
-  if (onTop()) {
-    console.log('WHYYYY')
-  }
   if (onTop() && PlayerObject.y_velocity <= 0) {
     PlayerObject.y_velocity = 0;
   } else {
     PlayerObject.y_velocity -= physics.gravity;
   }
+  // grounded controls
   if (onTop()) {
     if (PressedKeys['KeyW']) {
-      PlayerObject.z_velocity = Math.min(physics.speedCap,
-        PlayerObject.z_velocity + physics.moveAccel)
-    }
-    else if (PressedKeys['KeyS']) {
       PlayerObject.z_velocity = Math.max(-physics.speedCap,
         PlayerObject.z_velocity - physics.moveAccel)
+    }
+    else if (PressedKeys['KeyS']) {
+      PlayerObject.z_velocity = Math.min(physics.speedCap,
+        PlayerObject.z_velocity + physics.moveAccel)
     } else {
       PlayerObject.z_velocity *= 1.0 - physics.friction;
     }
-  } else {
-    
+  } else { // aerial controls
+    if (PressedKeys['KeyW']) {
+      PlayerObject.z_velocity = Math.max(-physics.speedCap,
+        PlayerObject.z_velocity - physics.moveAccel * physics.airControl)
+    }
+    else if (PressedKeys['KeyS']) {
+      PlayerObject.z_velocity = Math.min(physics.speedCap,
+        PlayerObject.z_velocity + physics.moveAccel * physics.airControl)
+    } else {
+      PlayerObject.z_velocity *= 1.0 - physics.airRes;
+    }
   }
   
-
+  // move the player based on velocity
   PlayerObject.camera.position.z += PlayerObject.z_velocity;
   PlayerObject.camera.position.y += PlayerObject.y_velocity;
+  // update the blocks
+  generateBlock();
 
   if (DONE) {
     alert('demo done: you win!');
+    location.reload();
+  }
+  else if (PlayerObject.camera.position.y < -10) {
     location.reload();
   }
 }
@@ -155,9 +201,9 @@ function onTop() {
   camera_copy = {
     z: PlayerObject.camera.position.z,
     x: PlayerObject.camera.position.x,
-    y: PlayerObject.camera.position.y - 1.5,
+    y: PlayerObject.camera.position.y,
   }
-  raycaster.set(camera_copy, new THREE.Vector3(0, 1, 0));
+  raycaster.set(camera_copy, new THREE.Vector3(0, -.5, 0));
   var intersects = raycaster.intersectObjects(group.children);
   if(intersects.length > 0) {
     
@@ -176,16 +222,8 @@ function onTop() {
 // from three js documntation:
 // https://threejs.org/docs/#manual/en/introduction/Creating-a-scene
 renderer.render(scene, PlayerObject.camera);
-let i = 0;
 const animate = function () {
 	requestAnimationFrame( animate );
   renderer.render( scene, PlayerObject.camera );
   updateGame();
-  
-  /* UNCOMMENT TO SET FAIL STATE
-  if (PlayerObject.camera.position.y <-3) {
-    alert('you lose')
-    location.reload();
-  }*/
-  
 }
