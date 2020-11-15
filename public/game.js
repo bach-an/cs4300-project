@@ -29,7 +29,6 @@ camera.position.z = 2;
 camera.position.x = 0;
 camera.position.y = 1; // how "tall" player character is
 
-
 // default position is (0,0,0)
 const geometry = new THREE.BoxBufferGeometry(1,1,10);
 const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
@@ -46,31 +45,52 @@ cylinder.name = 'cylinder';
 cube.name = 'c1';
 cube.name = 'c2';
 
-
 group.add(cube);
 group.add(cube2);
 group.add(cylinder);
 scene.add(group);
 
+// records the players gamestate
+const PlayerObject = {
+  camera: camera,
+  z_velocity: 0,
+}
 
-document.addEventListener('keypress', onKeyPress);
+// tracks all pressed buttons
+const PressedKeys = {
+  'KeyW': false,
+  'KeyA': false,
+  'KeyS': false,
+  'KeyD': false,
+  'Space': false,
+}
+
+
+// initializes the event listeners
+const init = () => {
+  document.addEventListener('keypress', onKeyPress);
+
+  animate();
+}
+
+
 var pause = false
 // param to determine how fast the camera is moving in the z dir
 const speed = 0.03
 function onKeyPress(e) {
   switch(e.code) {
     case 'KeyW':
-      camera.position.z -= speed;
+      PlayerObject.camera.position.z -= speed;
       break;
     case 'KeyS':
-      camera.position.z += speed;
+      PlayerObject.camera.position.z += speed;
       break;
     case 'Space':
       // still doesn't look or feel right
       // TODO: tweak
-      camera.position.z -= 1
-      camera.position.y += 20 * -gravity;
-
+      if (onTop) {
+        PlayerObject.camera.position.y -= 50 * gravity;
+      }
       break;
     case 'KeyP':
       pause = !pause;
@@ -101,7 +121,7 @@ function onKeyPress(e) {
 function onTop() {
   var top = false;
   var raycaster = new THREE.Raycaster();
-  raycaster.set(camera.position, new THREE.Vector3(0, -1, 0));
+  raycaster.set(PlayerObject.camera.position, new THREE.Vector3(0, -1, 0));
   var intersects = raycaster.intersectObjects(group.children);
   if(intersects.length > 0) {
     
@@ -119,29 +139,28 @@ function onTop() {
 
 // from three js documntation:
 // https://threejs.org/docs/#manual/en/introduction/Creating-a-scene
-renderer.render(scene, camera);
+renderer.render(scene, PlayerObject.camera);
 let i = 0;
 const animate = function () {
-  if(camera.position.z >= 2) {
-    camera.position.z = 2;
+  if(PlayerObject.camera.position.z >= 2) {
+    PlayerObject.camera.position.z = 2;
   }
-  if(pause) {
-    camera.position.z -= speed;
-  }
+  //if(pause) {
+  //  PlayerObject.camera.position.z -= speed;
+  //}
 	requestAnimationFrame( animate );
-	renderer.render( scene, camera );
-  if(!onTop() || camera.position.y > 1) {
-    camera.position.y += gravity;
+	renderer.render( scene, PlayerObject.camera );
+  if(!onTop() || PlayerObject.camera.position.y > 1) {
+    PlayerObject.camera.position.y += gravity;
   }
   if (DONE) {
     alert('demo done: you win!');
     location.reload();
   }
   /* UNCOMMENT TO SET FAIL STATE
-  if (camera.position.y <-3) {
+  if (PlayerObject.camera.position.y <-3) {
     alert('you lose')
     location.reload();
   }*/
   
 }
-animate();

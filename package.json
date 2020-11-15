@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/bach-an/cs4300-project#readme",
   "dependencies": {
-    "express": "latest"
-
-  } 
+    "express": "^4.17.1"
+  }
 }
