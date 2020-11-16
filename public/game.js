@@ -8,9 +8,10 @@ spotLight.shadow.mapSize.height = 5;
 spotLight.castShadow = true;
 scene.add(spotLight);
 scene.add(light);
-let cw = canvas.width
-let ch = canvas.height
+let cw = canvas.width;
+let ch = canvas.height;
 var DONE = false;
+let SHAPES = ['cube', 'cylinder'];
 
 // first arg is FOV in degrees
 // second arg is aspect ratio
@@ -31,6 +32,7 @@ camera.position.y = 1; // how "tall" player character is
 
 // default position is (0,0,0)
 const geometry = new THREE.BoxBufferGeometry(1,1,1);
+const cyGeometry = new THREE.CylinderBufferGeometry(0.3,0.3,1,12);
 const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
 
 let blockTick = 0;
@@ -103,13 +105,26 @@ function generateBlock() {
         exists: trueBlock,
         height: 0, // for now
       })
-      let newCube = new THREE.Mesh(geometry, material);
-      newCube.position.set(0, -10.0, -blockList.length);
-      newCube.name = -blockList.length;
-      if (trueBlock) {
-        group.add(newCube);
+      let shapeType = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+      if(shapeType == 'cube') {
+        let newCube = new THREE.Mesh(geometry, material);
+        newCube.position.set(0, -10.0, -blockList.length);
+        newCube.name = -blockList.length;
+        if (trueBlock) {
+          group.add(newCube);
+        }
+        blockList.push(newCube);
       }
-      blockList.push(newCube);
+      else {
+        let newCy = new THREE.Mesh(cyGeometry, material);
+        newCy.position.set(0, -10.0, -blockList.length);
+        newCy.name = -blockList.length;
+        if (trueBlock) {
+          group.add(newCy);
+        }
+        blockList.push(newCy);
+ 
+      }
     }
   }
   // animate the moving blocks upwards
