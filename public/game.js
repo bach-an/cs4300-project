@@ -1,6 +1,6 @@
 canvas = document.getElementById('canvas')
 const scene = new THREE.Scene();
-const spotLight = new THREE.SpotLight(0x1000eb);
+const spotLight = new THREE.SpotLight(0x008000);
 const light = new THREE.AmbientLight();
 spotLight.position.set(0,2.5,-10);
 spotLight.shadow.mapSize.width = 5;
@@ -12,12 +12,20 @@ let cw = canvas.width;
 let ch = canvas.height;
 var DONE = false;
 let SHAPES = ['cube', 'cylinder'];
+let near = 0.1;
+let far = 1000;
 
 // first arg is FOV in degrees
 // second arg is aspect ratio
 // third and fourth are new and far clipping plane
 const camera = new THREE.PerspectiveCamera(90,
-  canvas.width / canvas.height, 0.1, 1000);
+  canvas.width / canvas.height, near, far);
+const orthCamera = new THREE.OrthographicCamera(-3, 3,3, -3,  near, far);
+orthCamera.position.set(0,5,0);
+orthCamera.up.set(0,0,-1);
+orthCamera.lookAt(new THREE.Vector3(0,0,0));
+
+
 // render onto the canvas in index
 const renderer = new THREE.WebGLRenderer({canvas : canvas});
 renderer.setClearColor(0xfffffff, 1);
@@ -148,9 +156,12 @@ function generateBlock() {
 
 // updates the world every tick (60 per second)
 function updateGame() {
+  // if player is falling, stop when on top of block
+  // or keep y vel same if already 0
   if (onTop() && PlayerObject.y_velocity <= 0) {
     PlayerObject.y_velocity = 0;
-  } else {
+  } else { 
+    // occurs when jumping/falling
     PlayerObject.y_velocity -= physics.gravity;
   }
   // grounded controls
@@ -184,11 +195,7 @@ function updateGame() {
   // update the blocks
   generateBlock();
 
-  if (DONE) {
-    alert('demo done: you win!');
-    location.reload();
-  }
-  else if (PlayerObject.camera.position.y < -10) {
+  if (PlayerObject.camera.position.y < -10) {
     location.reload();
   }
 }
@@ -224,12 +231,6 @@ function onTop() {
     
     top = true;
   }
-  intersects.forEach(element => {
-    //console.log(element);
-    if(element.object.name == 'cylinder') {
-      DONE = true;
-    }
-  })
   return top;
 }
 
@@ -238,7 +239,28 @@ function onTop() {
 // https://threejs.org/docs/#manual/en/introduction/Creating-a-scene
 renderer.render(scene, PlayerObject.camera);
 const animate = function () {
-	requestAnimationFrame( animate );
-  renderer.render( scene, PlayerObject.camera );
+ var SCREEN_W, SCREEN_H;
+ SCREEN_W = canvas.width;
+ SCREEN_H = canvas.height;
+
+ var left,bottom,width,height;
+
+ left = 1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
+ renderer.setViewport (left,bottom,width,height);
+ renderer.setScissor(left,bottom,width,height);
+ renderer.setScissorTest (true);
+ orthCamera.aspect = width/height;
+ orthCamera.updateProjectionMatrix();
+ orthCamera.position.z = PlayerObject.camera.position.z
+  renderer.render( scene, orthCamera);
+ left = 0.5*SCREEN_W+1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
+ renderer.setViewport (left,bottom,width,height);
+ renderer.setScissor(left,bottom,width,height);
+ renderer.setScissorTest (true);  // clip out "viewport"
+ camera.aspect = width/height;
+ camera.updateProjectionMatrix();
+ requestAnimationFrame( animate );
+ renderer.render( scene, PlayerObject.camera );
   updateGame();
 }
+

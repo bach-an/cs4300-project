@@ -3,13 +3,14 @@
 <html lang="en">
   <head>
     <title>Graphics Project: Infinite Runner</title>
-    <base href=".">
-    <script src="utils/three.js"> </script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="utils/physijs/physi.js"></script>   
     <link rel="stylesheet" 
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
-     <style>canvas {border: 1px solid gray;}</style>
+     <style>
+       canvas {border: 1px solid gray;}
+     </style>
+
+     <script src="./utils/three.js-master/build/three.js";></script>
+ 
      <script src="https://code.jquery.com/jquery-3.5.1.min.js"
              integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
              crossorigin="anonymous"></script>
@@ -23,31 +24,15 @@
   <!-- <body onload="init();render();"> -->
   <body onload='init()'>
 
-    <canvas id="canvas" width="700px" height="500px"></canvas>
+    <canvas id="canvas" width="800px" height="600px"></canvas>
     <script src="game.js" type="application/javascript"></script>
+    <div class="split">
+      <div id="view1" tabindex="1"></div>
+      <div id="view2" tabindex="2"></div>
+    </div>
     </br>
     <p> [W/D] to manually move </p>
     <p> [Space] to jump </p>
     <p> [R] to reload page and restart prototype </p>   
-    <!--
-    TODO: 
-      platform generation algorithm </br>
-      score </br>
-      make jumping smoother </br>
-      difficulty? </br>
-      other obstacles </br>
-      moving camera with mouse </br>
-      add another geometric shape </br>
-    
-  <p> For p2: </p>
-  <ol> 
-    <li> one canvas DONE </li>
-    <li> 2 3d shapes DONE</li>
-    <li> 1 perspective projection DONE </li>
-    <li> One camera DONE </li>
-    <li> One lighting source DONE </li>
-    <li> User interactions DONE </li>
-    <li> deploy on public server URL DONE </li>
-  </ol-->
   </body>
 </html>
