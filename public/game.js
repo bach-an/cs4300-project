@@ -2,9 +2,9 @@ canvas = document.getElementById('canvas')
 const scene = new THREE.Scene();
 const spotLight = new THREE.SpotLight(0x008000);
 const light = new THREE.AmbientLight();
-spotLight.position.set(0,2.5,-10);
-spotLight.shadow.mapSize.width = 5;
-spotLight.shadow.mapSize.height = 5;
+spotLight.position.set(1,2.5,-10);
+spotLight.shadow.mapSize.width = 2;
+spotLight.shadow.mapSize.height = 2;
 spotLight.castShadow = true;
 scene.add(spotLight);
 scene.add(light);
