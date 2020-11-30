@@ -257,7 +257,7 @@ const animate = function () {
 
  var left,bottom,width,height;
 
- left = 1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
+ left = 1; bottom = 1; width = 0.25*SCREEN_W-2; height = SCREEN_H-2;
  renderer.setViewport (left,bottom,width,height);
  renderer.setScissor(left,bottom,width,height);
  renderer.setScissorTest (true);
@@ -265,7 +265,7 @@ const animate = function () {
  orthCamera.updateProjectionMatrix();
  orthCamera.position.z = PlayerObject.camera.position.z
  renderer.render( scene, orthCamera);
- left = 0.5*SCREEN_W+1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
+ left = 0.25*SCREEN_W+1; bottom = 1; width = 0.75*SCREEN_W-2; height = SCREEN_H-2;
  renderer.setViewport (left,bottom,width,height);
  renderer.setScissor(left,bottom,width,height);
  renderer.setScissorTest (true);  // clip out "viewport"

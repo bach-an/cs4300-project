@@ -26,13 +26,17 @@
 
     <canvas id="canvas" width="1100px" height="700px"></canvas>
     <script src="game.js" type="application/javascript"></script>
-    <div class="split">
-      <div id="view1" tabindex="1"></div>
-      <div id="view2" tabindex="2"></div>
-    </div>
-    </br>
     <p> [W/D] to manually move </p>
     <p> [Space] to jump </p>
     <p> [R] to reload page and restart prototype </p>   
+
+    <form>
+      <input type="radio" id="cube" name="shapeType" value="cube">
+      <label for="cube">Cubes Only</label><br>
+      <input type="radio" id="cylinder" name="shapeType" value="cylinder">
+      <label for="cylinder">Cylinders Only</label><br>
+      <input type="radio" id="both" name="shapeType" value="both">
+      <label for="both">Both</label><br>
+    </form>
   </body>
 </html>
