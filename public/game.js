@@ -2,7 +2,7 @@ canvas = document.getElementById('canvas')
 const scene = new THREE.Scene();
 const spotLight = new THREE.SpotLight(0x008000);
 const light = new THREE.AmbientLight();
-spotLight.position.set(1,2.5,-10);
+spotLight.position.set(0,2.5,-2.5);
 spotLight.shadow.mapSize.width = 2;
 spotLight.shadow.mapSize.height = 2;
 spotLight.castShadow = true;
@@ -41,7 +41,14 @@ camera.position.y = 1; // how "tall" player character is
 // default position is (0,0,0)
 const geometry = new THREE.BoxBufferGeometry(1,1,1);
 const cyGeometry = new THREE.CylinderBufferGeometry(0.3,0.3,1,12);
-const material = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
+const material1 = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
+const material2 = new THREE.MeshLambertMaterial({ map: beigeCobblestoneTexture} );
+
+
+function randomMaterial() {
+  textures = [material1, material2];
+  return textures[Math.floor(Math.random() * Math.floor(2))];
+}
 
 let blockTick = 0;
 const blockList = [];
@@ -49,7 +56,7 @@ let createBlockList = [];
 
 // creating the initial array of objects
 for (let i = 0; i < settings.startingBlocks; i++) {
-  let newCube = new THREE.Mesh(geometry, material);
+  let newCube = new THREE.Mesh(geometry, material1);
   newCube.position.set(0, 0, -i);
   newCube.name = -i;
   group.add(newCube);
@@ -114,8 +121,10 @@ function generateBlock() {
         height: 0, // for now
       })
       let shapeType = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+      let randomMat = randomMaterial();
       if(shapeType == 'cube') {
-        let newCube = new THREE.Mesh(geometry, material);
+
+        let newCube = new THREE.Mesh(geometry, randomMat);
         newCube.position.set(0, -10.0, -blockList.length);
         newCube.name = -blockList.length;
         if (trueBlock) {
@@ -124,7 +133,7 @@ function generateBlock() {
         blockList.push(newCube);
       }
       else {
-        let newCy = new THREE.Mesh(cyGeometry, material);
+        let newCy = new THREE.Mesh(cyGeometry, randomMat);
         newCy.position.set(0, -10.0, -blockList.length);
         newCy.name = -blockList.length;
         if (trueBlock) {
@@ -196,7 +205,10 @@ function updateGame() {
   generateBlock();
 
   if (PlayerObject.camera.position.y < -10) {
+
+    PlayerObject.camera.position.y = 0
     location.reload();
+
   }
 }
 
@@ -252,7 +264,7 @@ const animate = function () {
  orthCamera.aspect = width/height;
  orthCamera.updateProjectionMatrix();
  orthCamera.position.z = PlayerObject.camera.position.z
-  renderer.render( scene, orthCamera);
+ renderer.render( scene, orthCamera);
  left = 0.5*SCREEN_W+1; bottom = 1; width = 0.5*SCREEN_W-2; height = SCREEN_H-2;
  renderer.setViewport (left,bottom,width,height);
  renderer.setScissor(left,bottom,width,height);
@@ -261,6 +273,6 @@ const animate = function () {
  camera.updateProjectionMatrix();
  requestAnimationFrame( animate );
  renderer.render( scene, PlayerObject.camera );
-  updateGame();
+ updateGame();
 }
 
