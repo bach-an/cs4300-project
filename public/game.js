@@ -25,7 +25,6 @@ orthCamera.position.set(0,5,0);
 orthCamera.up.set(0,0,-1);
 orthCamera.lookAt(new THREE.Vector3(0,0,0));
 
-
 // render onto the canvas in index
 const renderer = new THREE.WebGLRenderer({canvas : canvas});
 renderer.setClearColor(0xfffffff, 1);
@@ -72,6 +71,11 @@ const PlayerObject = {
   y_velocity: 0,
 }
 
+// keep track of some world state
+const gameWorld = {
+  blockType: 2,
+}
+
 // tracks all pressed buttons
 const PressedKeys = {
   'KeyW': false,
@@ -109,6 +113,10 @@ function onKeyUp(e) {
   PressedKeys[e.code] = false;
 }
 
+function setBlock(blockType) {
+  gameWorld.blockType = blockType;
+}
+
 // generate/update blocks
 function generateBlock() {
   if (blockTick % settings.blockGenTickRate == 0) {
@@ -120,10 +128,20 @@ function generateBlock() {
         exists: trueBlock,
         height: 0, // for now
       })
-      let shapeType = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+      let shapeType = null;
+      switch(gameWorld.blockType) {
+        case 0:
+          shapeType = SHAPES[0];
+          break;
+        case 1:
+          shapeType = SHAPES[1];
+          break;
+        case 2:
+          shapeType = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+          break;
+      }
       let randomMat = randomMaterial();
       if(shapeType == 'cube') {
-
         let newCube = new THREE.Mesh(geometry, randomMat);
         newCube.position.set(0, -10.0, -blockList.length);
         newCube.name = -blockList.length;
@@ -132,7 +150,7 @@ function generateBlock() {
         }
         blockList.push(newCube);
       }
-      else {
+      else if (shapeType == 'cylinder'){
         let newCy = new THREE.Mesh(cyGeometry, randomMat);
         newCy.position.set(0, -10.0, -blockList.length);
         newCy.name = -blockList.length;
@@ -161,7 +179,6 @@ function generateBlock() {
   });
   blockTick++;
 }
-
 
 // updates the world every tick (60 per second)
 function updateGame() {
@@ -212,7 +229,7 @@ function updateGame() {
   }
 }
 
-
+/*
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 (function() {
   document.onmousemove = handleMouseMove;
@@ -223,11 +240,10 @@ function updateGame() {
     //console.log(x + " " + y);
   } 
 })();
-
+*/
 
 // determine if the camera is on top of any of the current objects
 // https://steemit.com/utopian-io/@clayjohn/learning-3d-graphics-with-three-js-or-how-to-use-a-raycaster
-// used raycasters to figure this out
 function onTop() {
   var top = false;
   var raycaster = new THREE.Raycaster();

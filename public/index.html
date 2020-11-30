@@ -29,14 +29,12 @@
     <p> [W/D] to manually move </p>
     <p> [Space] to jump </p>
     <p> [R] to reload page and restart prototype </p>   
-
-    <form>
-      <input type="radio" id="cube" name="shapeType" value="cube">
-      <label for="cube">Cubes Only</label><br>
-      <input type="radio" id="cylinder" name="shapeType" value="cylinder">
-      <label for="cylinder">Cylinders Only</label><br>
-      <input type="radio" id="both" name="shapeType" value="both">
-      <label for="both">Both</label><br>
-    </form>
+    <br>
+    <h5><u>Platform Generation (Default is both geometries randomly)</u></h5>
+    <button onclick="setBlock(0)">Generate cubes Only </button>
+    <br>
+    <button onclick="setBlock(1)">Generate cylinders Only </button>
+    <br>
+    <button onclick="setBlock(2)">Generate both randomly </button>
   </body>
 </html>
