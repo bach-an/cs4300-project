@@ -43,6 +43,12 @@ const cyGeometry = new THREE.CylinderBufferGeometry(0.3,0.3,1,12);
 const material1 = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
 const material2 = new THREE.MeshLambertMaterial({ map: beigeCobblestoneTexture} );
 
+powerupCube = spawnPowerupCube(0, 1, -5);
+powerupSphere = spawnPowerupSphere(0,1, -6);
+group.add(powerupCube);
+
+group.add(powerupSphere);
+
 
 function randomMaterial() {
   textures = [material1, material2];
@@ -69,12 +75,14 @@ const PlayerObject = {
   camera: camera,
   z_velocity: 0,
   y_velocity: 0,
+  powerup: false // whether or not the player has a powerup
 }
 
 // keep track of some world state
 const gameWorld = {
   blockType: 2,
 }
+
 
 // tracks all pressed buttons
 const PressedKeys = {
@@ -180,6 +188,13 @@ function generateBlock() {
   blockTick++;
 }
 
+function changePowerUpStates() {
+  PlayerObject.powerup = !PlayerObject.powerup;
+}
+
+
+
+
 // updates the world every tick (60 per second)
 function updateGame() {
   // if player is falling, stop when on top of block
@@ -227,20 +242,9 @@ function updateGame() {
     location.reload();
 
   }
+  rotatePowerup(powerupCube);
+  rotatePowerup(powerupSphere);
 }
-
-/*
-// https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
-(function() {
-  document.onmousemove = handleMouseMove;
-  function handleMouseMove(event) {
-    var rect = canvas.getBoundingClientRect();
-    var x = event.clientX - rect.left
-    var y = event.clientY - rect.top
-    //console.log(x + " " + y);
-  } 
-})();
-*/
 
 // determine if the camera is on top of any of the current objects
 // https://steemit.com/utopian-io/@clayjohn/learning-3d-graphics-with-three-js-or-how-to-use-a-raycaster

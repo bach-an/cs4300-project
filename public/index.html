@@ -22,21 +22,23 @@
      <script src="utils/shapes.js" type="application/javascript"></script>
      <script src="utils/textures.js"> </script> 
      <script src="utils/physics.js"></script>
+     <script src="utils/powerups.js"></script>
   </head>
 
   <!-- <body onload="init();render();"> -->
   <body onload='init()'>
 
-    <canvas id="canvas" width="1100px" height="700px"></canvas>
+    <canvas id="canvas" width="1200px" height="700px"></canvas>
     <script src="game.js" type="application/javascript"></script>
-    <p> [W/D] to manually move </p>
-    <p> [Space] to jump </p>
-    <p> [R] to reload page and restart prototype </p>   
-    <h5><u>Platform Generation (Default is both geometries randomly)</u></h5>
-    <button onclick="setBlock(0)">Generate cubes Only </button>
-    <br>
-    <button onclick="setBlock(1)">Generate cylinders Only </button>
-    <br>
-    <button onclick="setBlock(2)">Generate both randomly </button>
+      <p> [W/D] to manually move </p>
+      <p> [Space] to jump </p>
+      <p> [R] to reload page and restart prototype </p>   
+      <h5><u>Platform Generation (Default is both geometries randomly)</u></h5>
+      <button onclick="setBlock(0)">Generate cubes Only </button>
+      <br>
+      <button onclick="setBlock(1)">Generate cylinders Only </button>
+      <br>
+      <button onclick="setBlock(2)">Generate both randomly </button>  
+        
   </body>
 </html>

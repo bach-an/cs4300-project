@@ -1,5 +1,5 @@
 const physics = {
-    gravity: 0.001,
+    gravity: 0.0015, // change to 0.001 when powered up,
     moveAccel: 0.001, // velocity change per tick
     airControl: 0.25,
     friction: 0.1, // percent slowed per tick
