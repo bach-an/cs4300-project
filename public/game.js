@@ -11,7 +11,8 @@ scene.add(light);
 let cw = canvas.width;
 let ch = canvas.height;
 var DONE = false;
-let SHAPES = ['cube', 'cylinder'];
+const SHAPES = ['cube', 'cylinder'];
+const POWERUPS = [spawnPowerupCube, spawnPowerupSphere];
 let near = 0.1;
 let far = 1000;
 
@@ -43,13 +44,6 @@ const cyGeometry = new THREE.CylinderBufferGeometry(0.3,0.3,1,12);
 const material1 = new THREE.MeshLambertMaterial( { map:cobblestoneTexture} );
 const material2 = new THREE.MeshLambertMaterial({ map: beigeCobblestoneTexture} );
 
-powerupCube = spawnPowerupCube(0, 1, -5);
-powerupSphere = spawnPowerupSphere(0,1, -6);
-group.add(powerupCube);
-
-group.add(powerupSphere);
-
-
 function randomMaterial() {
   textures = [material1, material2];
   return textures[Math.floor(Math.random() * Math.floor(2))];
@@ -58,6 +52,7 @@ function randomMaterial() {
 let blockTick = 0;
 const blockList = [];
 let createBlockList = [];
+const powerupList = [];
 
 // creating the initial array of objects
 for (let i = 0; i < settings.startingBlocks; i++) {
@@ -75,12 +70,15 @@ const PlayerObject = {
   camera: camera,
   z_velocity: 0,
   y_velocity: 0,
-  powerup: false // whether or not the player has a powerup
+  powerup: false, // whether or not the player has a powerup
+  powerUpTime: 0
 }
 
 // keep track of some world state
 const gameWorld = {
   blockType: 2,
+  powerUp: null, // the powerup in the world
+  powerUpSpawned: false
 }
 
 
@@ -129,6 +127,18 @@ function setBlock(blockType) {
 function generateBlock() {
   if (blockTick % settings.blockGenTickRate == 0) {
     let blockZ = blockList[blockList.length - 1].position.z;
+
+    // if a power up should be generated now...
+    if (blockTick % settings.powerupGenTickRate == 0 && !gameWorld.powerUpSpawned) {
+      let x = PlayerObject.camera.position.x;
+      let y = PlayerObject.camera.position.y;
+      let z = blockList[blockList.length - 1].position.z;
+      let powerupShapeFun = POWERUPS[Math.floor(Math.random() * POWERUPS.length)];
+      let powerup = powerupShapeFun(x,y,z);
+      gameWorld.powerUp = powerup;
+      gameWorld.powerUpSpawned = true;
+      group.add(powerup);
+    }
     if (PlayerObject.camera.position.z - blockZ < settings.generateDist) {
       let trueBlock = Math.random() < settings.blockChance;
       createBlockList.push({
@@ -188,15 +198,24 @@ function generateBlock() {
   blockTick++;
 }
 
-function changePowerUpStates() {
-  PlayerObject.powerup = !PlayerObject.powerup;
-}
-
-
-
-
 // updates the world every tick (60 per second)
 function updateGame() {
+  console.log(physics.gravity)
+  if(PlayerObject.powerup) {
+    physics.gravity = 0.0009
+  }
+  else {
+    physics.gravity = 0.0012
+  }
+  // keep track of if a player has a powerup
+  if(PlayerObject.powerUpTime == settings.powerUpTime && PlayerObject.powerup) {
+    PlayerObject.powerup = false;
+    PlayerObject.powerUpTime = 0;
+  }
+  // if the player is not powered up
+  else if(PlayerObject.powerUpTime < settings.powerUpTime && PlayerObject.powerup) {
+    PlayerObject.powerUpTime += 1;
+  }
   // if player is falling, stop when on top of block
   // or keep y vel same if already 0
   if (onTop() && PlayerObject.y_velocity <= 0) {
@@ -228,6 +247,14 @@ function updateGame() {
     } else {
       PlayerObject.z_velocity *= 1.0 - physics.airRes;
     }
+    if(Math.abs(PlayerObject.camera.position.z-gameWorld.powerUp.position.z) <= 0.5 && 
+       Math.abs(PlayerObject.camera.position.y-gameWorld.powerUp.position.y) <= 0.5 && 
+       Math.abs(PlayerObject.camera.position.x-gameWorld.powerUp.position.x) <= 0.5)
+    {
+      PlayerObject.powerup = true;
+      gameWorld.powerUpSpawned = false; 
+    } 
+
   }
   
   // move the player based on velocity
