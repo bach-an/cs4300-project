@@ -200,7 +200,6 @@ function generateBlock() {
 
 // updates the world every tick (60 per second)
 function updateGame() {
-  console.log(physics.gravity)
   if(PlayerObject.powerup) {
     physics.gravity = 0.0009
   }
